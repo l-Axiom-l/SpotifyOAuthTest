@@ -24,22 +24,15 @@ namespace SpotifyOAuthTest
 
         async void Start()
         {
-            WebView2 view = new WebView2();
-            await view.EnsureCoreWebView2Async();
-            while (Form.ActiveForm == null) { await Task.Delay(10); };
-
-            Debug.WriteLine("Test:" + Form.ActiveForm);
-            view.Size = Form.ActiveForm.ClientSize;
-            Form.ActiveForm.Controls.Add(view);
-            view.Show();
-            view.CoreWebView2.Navigate("https://accounts.spotify.com/authorize?client_id=7790ce9e6c5a41f3bd39666898ede546&response_type=code&scope=user-modify-playback-state user-read-currently-playing&redirect_uri=http://localhost:8888/callback");
+            Browser browser = new Browser();
+            browser.Show(this);
             HttpListener listener = new HttpListener();
             listener.Prefixes.Add("http://localhost:8888/callback/");
             listener.Start();
             HttpListenerContext context = await listener.GetContextAsync();
             listener.Stop();
             listener.Abort();
-            view.Dispose();
+            browser.Close();
             string AuthCode = context.Request.QueryString.Get(0);
             string head = Base64Encode("7790ce9e6c5a41f3bd39666898ede546:4b20a8ae5d0044b8a636c6cee9c75e03");
             StringContent content = new StringContent($"grant_type=authorization_code&code={AuthCode}&redirect_uri=http://localhost:8888/callback", Encoding.UTF8, "application/x-www-form-urlencoded");
@@ -66,9 +59,20 @@ namespace SpotifyOAuthTest
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
                     response = await client.GetAsync("https://api.spotify.com/v1/me/player/currently-playing");
                 }
-                File.WriteAllText(@"C:\\Programmieren\\Test\\Test.txt", await response.Content.ReadAsStringAsync());
-                TrackModel track = (TrackModel)await JsonSerializer.DeserializeAsync(response.Content.ReadAsStream(), typeof(TrackModel));
-                nameBox.Text = "Song: " + track.item.name;
+
+                TrackModel track;
+                try
+                {
+                    track = (TrackModel)await JsonSerializer.DeserializeAsync(response.Content.ReadAsStream(), typeof(TrackModel));
+                    nameBox.Text = "Song: " + track.item.name;
+                }
+                catch(Exception ex)
+                {
+                    nameBox.Text = "Error";
+                    await Task.Delay(1000);
+                    continue;
+                }
+
 
                 using (WebClient client = new WebClient())
                 {
@@ -98,6 +102,11 @@ namespace SpotifyOAuthTest
         {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return System.Convert.ToBase64String(plainTextBytes);
+        }
+
+        private void pictureBox_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

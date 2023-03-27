@@ -35,27 +35,30 @@
             // 
             // pictureBox
             // 
-            this.pictureBox.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox.Location = new System.Drawing.Point(12, 13);
+            this.pictureBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(168, 171);
+            this.pictureBox.Size = new System.Drawing.Size(200, 200);
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
+            this.pictureBox.Click += new System.EventHandler(this.pictureBox_Click);
             // 
             // nameBox
             // 
-            this.nameBox.Location = new System.Drawing.Point(12, 186);
+            this.nameBox.Location = new System.Drawing.Point(12, 225);
             this.nameBox.Name = "nameBox";
-            this.nameBox.Size = new System.Drawing.Size(168, 29);
+            this.nameBox.Size = new System.Drawing.Size(200, 39);
             this.nameBox.TabIndex = 1;
             this.nameBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(195, 229);
+            this.ClientSize = new System.Drawing.Size(226, 273);
             this.Controls.Add(this.nameBox);
             this.Controls.Add(this.pictureBox);
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
