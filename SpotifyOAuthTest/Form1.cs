@@ -1,13 +1,15 @@
 using System.Diagnostics;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Web.WebView2;
 using Microsoft.Web.WebView2.WinForms;
-using SpotifyOAuthTest;
+using SpotifyOAuth.Queue;
+using SpotifyOAuth.Track;
 
 namespace SpotifyOAuthTest
 {
@@ -32,7 +34,7 @@ namespace SpotifyOAuthTest
             view.Size = Form.ActiveForm.ClientSize;
             Form.ActiveForm.Controls.Add(view);
             view.Show();
-            view.CoreWebView2.Navigate("https://accounts.spotify.com/authorize?client_id=7790ce9e6c5a41f3bd39666898ede546&response_type=code&scope=user-modify-playback-state user-read-currently-playing&redirect_uri=http://localhost:8888/callback");
+            view.CoreWebView2.Navigate("https://accounts.spotify.com/authorize?client_id=7790ce9e6c5a41f3bd39666898ede546&response_type=code&scope=user-modify-playback-state user-read-currently-playing user-read-playback-state&redirect_uri=http://localhost:8888/callback");
             HttpListener listener = new HttpListener();
             listener.Prefixes.Add("http://localhost:8888/callback/");
             listener.Start();
@@ -54,6 +56,7 @@ namespace SpotifyOAuthTest
             RenewToken = con.Split(',').Single(x => x.Contains("refresh_token")).Split(':')[1].Trim('"').Trim('"');
 
             GetCurrentTrack();
+            GetQueue();
         }
 
         public async void GetCurrentTrack()
@@ -66,7 +69,7 @@ namespace SpotifyOAuthTest
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
                     response = await client.GetAsync("https://api.spotify.com/v1/me/player/currently-playing");
                 }
-                File.WriteAllText(@"C:\\Programmieren\\Test\\Test.txt", await response.Content.ReadAsStringAsync());
+                //File.WriteAllText(@"C:\\Programmieren\\Test\\Test.txt", await response.Content.ReadAsStringAsync());
                 TrackModel track = (TrackModel)await JsonSerializer.DeserializeAsync(response.Content.ReadAsStream(), typeof(TrackModel));
                 nameBox.Text = "Song: " + track.item.name;
 
@@ -78,9 +81,36 @@ namespace SpotifyOAuthTest
                 Debug.WriteLine(Environment.CurrentDirectory + @"\Test.png");
                 pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
                 pictureBox.ImageLocation = Environment.CurrentDirectory + @"\Test.png";
-
                 await Task.Delay(500);
             }
+        }
+
+        public async void GetQueue()
+        {
+            while(true)
+            {
+                HttpResponseMessage response;
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+                    response = await client.GetAsync("https://api.spotify.com/v1/me/player/queue");
+                }
+                File.WriteAllText(@"C:\\Programmieren\\Test\\Test.txt", await response.Content.ReadAsStringAsync());
+                QueueModel queue = (QueueModel)await JsonSerializer.DeserializeAsync(response.Content.ReadAsStream(), typeof(QueueModel));
+                Debug.WriteLine(queue.queue.Select(x => x.name));
+                queueBox.Text = String.Join('\n', queue.queue.Select(x => x.name).ToArray());
+                await Task.Delay(500);
+            }
+        }
+
+        public async void ChangePlayState()
+        {
+
+        }
+
+        public async void AddToQueue(string name)
+        {
+
         }
     
     

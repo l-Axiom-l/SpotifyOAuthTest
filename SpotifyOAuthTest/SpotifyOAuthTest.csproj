@@ -8,6 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     <Platforms>AnyCPU;x86</Platforms>
+    <Authors>Moritz Brosch</Authors>
+    <Company>AxiomSoftware</Company>
   </PropertyGroup>
 
   <ItemGroup>
